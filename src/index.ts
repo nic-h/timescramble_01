@@ -6,6 +6,7 @@ import { fetchTransactions, TokenTx } from "./fetchTransactions";
 import { generateSvg } from "./svgGenerator";
 import { convertSvgToPng } from "./convertSvgToPng";
 import { uploadPngToIpfs, uploadJsonToIpfs } from "./ipfsUploader";
+import { updateTokenUri } from "./updateContractURI";
 import { CANVAS_SIZE } from "./constants";
 
 async function main() {
@@ -52,6 +53,10 @@ async function main() {
   // 6) Pin metadata JSON to IPFS
   const metadataUri = await uploadJsonToIpfs(metadata);
   console.log("Metadata pinned to IPFS:", metadataUri);
+
+  // 7) Update on-chain token URI
+  await updateTokenUri("1", metadataUri);
+  console.log("🔗 Token URI updated on-chain:", metadataUri);
 
   console.log("✅ Dynamic artwork generated and uploaded to IPFS!");
   console.log("📋 Metadata URI:", metadataUri);
