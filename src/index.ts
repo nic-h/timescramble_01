@@ -1,6 +1,7 @@
 // src/index.ts - BACK TO REAL TRANSACTIONS
 import * as fs from "fs";
 import * as path from "path";
+import { createServer } from 'http';
 import { fetchTransactions, TokenTx } from "./fetchTransactions";
 import { generateSvg } from "./svgGenerator";
 import { convertSvgToPng } from "./convertSvgToPng";
@@ -60,4 +61,15 @@ async function main() {
 main().catch((err) => {
   console.error("Error in main:", err);
   process.exit(1);
+});
+
+// Start HTTP server to keep the web service alive
+const server = createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Timeframe Zora Coin service is running');
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
