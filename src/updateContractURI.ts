@@ -10,10 +10,10 @@ import { BASE_RPC_URL, TOKEN_ADDRESS, PRIVATE_KEY } from "./constants";
 import { coinAbi } from "./abi/coinABI";
 
 export async function updateTokenUri(
-  tokenId: string,
+  _tokenId: string, // Keep parameter for compatibility but ignore it
   newUri: string
 ): Promise<string | null> {
-  // 1) Read the current URI on-chain
+  // 1) Read the current contract URI (no token ID)
   const publicClient = createPublicClient({
     chain: base,
     transport: http(BASE_RPC_URL),
@@ -24,8 +24,8 @@ export async function updateTokenUri(
     currentOnChain = (await publicClient.readContract({
       address: TOKEN_ADDRESS,
       abi: coinAbi,
-      functionName: "uri",
-      args: [BigInt(tokenId)],
+      functionName: "contractURI",  // Changed from "uri"
+      args: [],  // No token ID needed
     })) as string;
   } catch {
     currentOnChain = "";
@@ -33,7 +33,7 @@ export async function updateTokenUri(
 
   if (currentOnChain === newUri) return null;
 
-  // 2) Write new URI with a wallet client
+  // 2) Update contract URI (no token ID)
   const signerAccount = privateKeyToAccount(PRIVATE_KEY as `0x${string}`);
   const walletClient = createWalletClient({
     chain: base,
@@ -44,8 +44,8 @@ export async function updateTokenUri(
   const hash = await walletClient.writeContract({
     address: TOKEN_ADDRESS,
     abi: coinAbi,
-    functionName: "setTokenURI",
-    args: [BigInt(tokenId), newUri],
+    functionName: "setContractURI",  // Changed from "setTokenURI"
+    args: [newUri],  // Only URI, no token ID
   });
 
   return hash as string;

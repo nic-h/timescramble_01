@@ -1,6 +1,6 @@
 // src/abi/coinABI.ts
 export const coinAbi = [
-  // ERC20 Transfer event: Transfer(address indexed from, address indexed to, uint256 value)
+  // ERC20 Transfer event
   {
     anonymous: false,
     inputs: [
@@ -11,21 +11,18 @@ export const coinAbi = [
     name: "Transfer",
     type: "event",
   },
-  // read-only uri(uint256) => string
+  // Read contract URI (no token ID)
   {
-    inputs: [{ internalType: "uint256", name: "tokenId", type: "uint256" }],
-    name: "uri",
+    inputs: [],
+    name: "contractURI",
     outputs: [{ internalType: "string", name: "", type: "string" }],
     stateMutability: "view",
     type: "function",
   },
-  // setTokenURI(uint256,newUri)
+  // Update contract URI (no token ID)
   {
-    inputs: [
-      { internalType: "uint256", name: "tokenId", type: "uint256" },
-      { internalType: "string", name: "newUri", type: "string" },
-    ],
-    name: "setTokenURI",
+    inputs: [{ internalType: "string", name: "newURI", type: "string" }],
+    name: "setContractURI",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
