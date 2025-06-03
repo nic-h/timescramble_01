@@ -55,8 +55,14 @@ async function main() {
   console.log("Metadata pinned to IPFS:", metadataUri);
 
   // 7) Update on-chain token URI
-  await updateTokenUri("1", metadataUri);
-  console.log("🔗 Token URI updated on-chain:", metadataUri);
+  try {
+    console.log("Attempting to update token URI...");
+    const result = await updateTokenUri("1", metadataUri);
+    console.log("🔗 Token URI updated on-chain:", metadataUri);
+    console.log("Transaction result:", result);
+  } catch (error) {
+    console.error("Failed to update token URI:", error);
+  }
 
   console.log("✅ Dynamic artwork generated and uploaded to IPFS!");
   console.log("📋 Metadata URI:", metadataUri);
