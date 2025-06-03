@@ -1,14 +1,12 @@
 // src/abi/coinABI.ts
 export const coinAbi = [
-  // Transfer event (ERC-20/ERC-721/ERC-1155 style: (address indexed from, address indexed to, uint256 indexed tokenId))
+  // ERC20 Transfer event: Transfer(address indexed from, address indexed to, uint256 value)
   {
     anonymous: false,
     inputs: [
       { indexed: true, name: "from", type: "address", internalType: "address" },
       { indexed: true, name: "to", type: "address", internalType: "address" },
-      { indexed: true, name: "tokenId", type: "uint256", internalType: "uint256" },
-      // Some ERC-20 include `value`, but our contract uses tokenId as the third indexed param.
-      // If your contract emits Transfer(address,address,uint256,value) remove this fourth input.
+      { indexed: false, name: "value", type: "uint256", internalType: "uint256" }
     ],
     name: "Transfer",
     type: "event",

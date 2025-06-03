@@ -54,13 +54,20 @@ export async function fetchTransactions(): Promise<TokenTx[]> {
     const end = fromBlock + BigInt(FETCH_BATCH_SIZE) - 1n;
     const batchEnd = end > toBlock ? toBlock : end;
 
-    // ——— Correct Viem 2.x syntax: pass `abi` and `eventName` at top level
+    // ERC20 Transfer event: from, to (indexed), value (not indexed)
     const logs = await client.getLogs({
       address: TOKEN_ADDRESS,
       fromBlock,
       toBlock: batchEnd,
-      abi: coinAbi,
-      eventName: "Transfer",
+      event: {
+        type: 'event',
+        name: 'Transfer',
+        inputs: [
+          { name: 'from', type: 'address', indexed: true },
+          { name: 'to', type: 'address', indexed: true },
+          { name: 'value', type: 'uint256', indexed: false }
+        ]
+      }
     });
 
     for (const log of logs) {
@@ -70,12 +77,12 @@ export async function fetchTransactions(): Promise<TokenTx[]> {
         topics: log.topics,
       });
 
-      // Cast to any so TS won’t complain about unknown[]
+      // Cast to any so TS won't complain about unknown[]
       const args = decoded.args as any;
       const from = args.from as `0x${string}`;
       const to = args.to as `0x${string}`;
-      const tokenId = (args.tokenId as bigint).toString();
-      const amount = args.value ? (args.value as bigint).toString() : "1";
+      const amount = (args.value as bigint).toString();
+      const tokenId = log.transactionHash; // Use tx hash as unique ID for ERC20
       const isBuy = to.toLowerCase() === TOKEN_ADDRESS.toLowerCase();
 
       allTxs.push({

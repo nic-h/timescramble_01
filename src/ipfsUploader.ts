@@ -2,13 +2,9 @@
 import * as fs from "fs";
 import * as path from "path";
 import PinataClient from "@pinata/sdk";
-import { PINATA_API_KEY, PINATA_SECRET_API_KEY, PINATA_ENDPOINT } from "./constants";
+import { PINATA_API_KEY, PINATA_SECRET_API_KEY } from "./constants";
 
-const pinata = new PinataClient({
-  apiKey: PINATA_API_KEY,
-  apiSecret: PINATA_SECRET_API_KEY,
-  endpoint: PINATA_ENDPOINT,
-});
+const pinata = new PinataClient(PINATA_API_KEY, PINATA_SECRET_API_KEY);
 
 export async function uploadPngToIpfs(pngFilePath: string): Promise<string> {
   const fileStream = fs.createReadStream(pngFilePath);

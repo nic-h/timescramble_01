@@ -5,6 +5,7 @@ import {
   http,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
+import { base } from "viem/chains";
 import { BASE_RPC_URL, TOKEN_ADDRESS, PRIVATE_KEY } from "./constants";
 import { coinAbi } from "./abi/coinABI";
 
@@ -14,6 +15,7 @@ export async function updateTokenUri(
 ): Promise<string | null> {
   // 1) Read the current URI on-chain
   const publicClient = createPublicClient({
+    chain: base,
     transport: http(BASE_RPC_URL),
   });
 
@@ -32,16 +34,14 @@ export async function updateTokenUri(
   if (currentOnChain === newUri) return null;
 
   // 2) Write new URI with a wallet client
-  // ——— Cast PRIVATE_KEY to `0x${string}` so Viem’s types are satisfied
   const signerAccount = privateKeyToAccount(PRIVATE_KEY as `0x${string}`);
   const walletClient = createWalletClient({
+    chain: base,
     transport: http(BASE_RPC_URL),
-    account: signerAccount.address,
-    chain: undefined,
+    account: signerAccount,
   });
 
   const hash = await walletClient.writeContract({
-    chain: undefined,
     address: TOKEN_ADDRESS,
     abi: coinAbi,
     functionName: "setTokenURI",
