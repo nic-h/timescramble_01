@@ -63,13 +63,15 @@ main().catch((err) => {
   process.exit(1);
 });
 
-// Start HTTP server to keep the web service alive
-const server = createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Timeframe Zora Coin service is running');
-});
+// Only start server if this is the web service
+if (process.env.PORT) {
+  const server = createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Timeframe Zora Coin service is running');
+  });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  const PORT = process.env.PORT || 3000;
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
