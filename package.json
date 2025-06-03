@@ -10,7 +10,7 @@
   "dependencies": {
     "@pinata/sdk": "2.1.0",
     "dotenv": "16.0.0",
-    "puppeteer": "21.0.0",
+    "canvas": "^2.11.2",
     "viem": "2.30.5"
   },
   "devDependencies": {

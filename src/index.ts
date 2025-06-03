@@ -1,4 +1,4 @@
-// src/index.ts - MORE VARIED TRADE SIZES
+// src/index.ts - BACK TO REAL TRANSACTIONS
 import * as fs from "fs";
 import * as path from "path";
 import { fetchTransactions, TokenTx } from "./fetchTransactions";
@@ -8,38 +8,23 @@ import { uploadPngToIpfs, uploadJsonToIpfs } from "./ipfsUploader";
 import { CANVAS_SIZE } from "./constants";
 
 async function main() {
-  // 50 DUMMY TRANSACTIONS WITH MORE VARIETY
-  const dummyTxs: TokenTx[] = [];
-  for (let i = 0; i < 50; i++) {
-    let amount: string;
-    const rand = Math.random();
-    
-    if (rand < 0.4) {
-      // 40% tiny trades (< 500)
-      amount = (Math.random() * 500).toString();
-    } else if (rand < 0.7) {
-      // 30% medium trades (500-5000)
-      amount = (500 + Math.random() * 4500).toString();
-    } else {
-      // 30% big trades (5000+)
-      amount = (5000 + Math.random() * 50000).toString();
-    }
-    
-    dummyTxs.push({
-      from: `0x${i.toString().padStart(40, '0')}` as `0x${string}`,
-      to: `0x${(i+100).toString().padStart(40, '0')}` as `0x${string}`,
-      tokenId: `test${i}`,
-      txHash: `0x${i.toString().padStart(62, '0')}abc` as `0x${string}`,
-      blockNumber: 123 + i,
-      amount: amount,
-      isBuy: Math.random() > 0.5
-    });
+  // (Optional) Log the last fetched block
+  const lastBlockFile = path.join(__dirname, "../data/lastBlock.txt");
+  if (fs.existsSync(lastBlockFile)) {
+    const last = fs.readFileSync(lastBlockFile, "utf8");
+    console.log("Resuming from block:", last);
   }
 
-  console.log(`Using ${dummyTxs.length} dummy transactions for testing.`);
+  // 1) Fetch new transfers - BACK TO REAL DATA
+  const tokenTxs: TokenTx[] = await fetchTransactions();
+  if (tokenTxs.length === 0) {
+    console.log("No new transfers detected.");
+    return;
+  }
+  console.log(`Fetched ${tokenTxs.length} new transfers.`);
 
   // 2) Generate SVG
-  const svgString = generateSvg(dummyTxs);
+  const svgString = generateSvg(tokenTxs);
   const svgOutputPath = path.join(__dirname, "output.svg");
   fs.writeFileSync(svgOutputPath, svgString, "utf8");
   console.log("SVG generated:", svgOutputPath);
@@ -59,7 +44,7 @@ async function main() {
     image: imageUri,
     attributes: [
       { trait_type: "Canvas Size", value: CANVAS_SIZE },
-      { trait_type: "Transaction Count", value: dummyTxs.length },
+      { trait_type: "Transaction Count", value: tokenTxs.length },
     ],
   };
 

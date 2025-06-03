@@ -1,41 +1,41 @@
-// src/convertSvgToPng.ts
+// src/convertSvgToPng.ts - Cairo version
 import * as fs from "fs";
 import * as path from "path";
-import puppeteer from "puppeteer";
+import { createCanvas, loadImage } from "canvas";
 
 export async function convertSvgToPng(
   svgString: string,
   outputName: string
 ): Promise<string> {
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <style>
-      body, html { margin: 0; padding: 0; }
-    </style>
-  </head>
-  <body>
-    ${svgString}
-  </body>
-</html>`;
-  const tempHtmlPath = path.join(__dirname, "temp.html");
-  fs.writeFileSync(tempHtmlPath, html, "utf8");
+  // Extract width/height from SVG
+  const widthMatch = svgString.match(/width="(\d+)"/);
+  const heightMatch = svgString.match(/height="(\d+)"/);
+  
+  const width = widthMatch ? parseInt(widthMatch[1]) : 512;
+  const height = heightMatch ? parseInt(heightMatch[1]) : 512;
 
-  const browser = await puppeteer.launch({
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
-  const page = await browser.newPage();
-  await page.goto(`file://${tempHtmlPath}`);
+  // Create canvas
+  const canvas = createCanvas(width, height);
+  const ctx = canvas.getContext('2d');
 
-  const pngTempPath = path.join(__dirname, `${outputName}.png`);
-  await page.screenshot({
-    path: pngTempPath as `${string}.png`,
-    omitBackground: true,
-  });
-
-  await browser.close();
-  fs.unlinkSync(tempHtmlPath);
-  return pngTempPath;
+  // Convert SVG string to data URL
+  const svgDataUrl = `data:image/svg+xml;base64,${Buffer.from(svgString).toString('base64')}`;
+  
+  try {
+    // Load SVG as image and draw to canvas
+    const img = await loadImage(svgDataUrl);
+    ctx.drawImage(img, 0, 0, width, height);
+    
+    // Convert to PNG buffer
+    const pngBuffer = canvas.toBuffer('image/png');
+    
+    // Save to file
+    const pngTempPath = path.join(__dirname, `${outputName}.png`);
+    fs.writeFileSync(pngTempPath, pngBuffer);
+    
+    return pngTempPath;
+  } catch (error) {
+    console.error('Error converting SVG to PNG:', error);
+    throw error;
+  }
 }
